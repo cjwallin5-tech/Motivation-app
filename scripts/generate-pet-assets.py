@@ -1027,6 +1027,27 @@ def make_app_icons():
         img.save(os.path.join(icons_out, name))
 
 
+def make_native_icon_source():
+    """A large transparent source logo for @capacitor/assets (Easy Mode) to generate the native
+    iOS/Android app icon and splash screen from — see 'npx @capacitor/assets generate --ios --android'.
+    Kept separate from make_app_icons()'s PWA icons, which already have their own bg baked in and
+    are left untouched."""
+    assets_out = os.path.join(HERE, "..", "assets")
+    os.makedirs(assets_out, exist_ok=True)
+
+    sheet = Image.open(os.path.join(OUT, "moss-classic-dragon.png")).convert("RGBA")
+    frame = sheet.crop((0, 0, FRAME, FRAME))  # idle-a frame
+
+    size = 1024
+    pad_frac = 0.14
+    inner = int(size * (1 - pad_frac * 2))
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    sprite = frame.resize((inner, inner), Image.NEAREST)
+    pos = ((size - inner) // 2, (size - inner) // 2)
+    img.paste(sprite, pos, sprite)
+    img.save(os.path.join(assets_out, "logo.png"))
+
+
 for species_id, palette in SPECIES.items():
     make_species(species_id, palette)
 make_egg()
@@ -1046,6 +1067,7 @@ make_zone_room()
 make_zone_garden()
 make_zone_loft()
 make_app_icons()
+make_native_icon_source()
 
 # Clean up filenames from before companions/color variants existed.
 stale_names = ["hatchling.png", "dragon.png"]
